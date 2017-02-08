@@ -13,6 +13,8 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 
+import java.util.UUID;
+
 import static android.widget.CompoundButton.*;
 
 /**
@@ -31,7 +33,9 @@ public class CrimeFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mCrime = new Crime();
+        //mCrime = new Crime();
+        UUID crimeId = (UUID) getActivity().getIntent().getSerializableExtra(CrimeActivity.EXTRA_CRIME_ID);
+        mCrime = CrimeLab.get(getActivity()).getCrime(crimeId);
     }
 
     //从fragment_crime.xml布局中国实例化并返回视图
@@ -42,6 +46,8 @@ public class CrimeFragment extends Fragment {
 
         // 用EditText  并添加对应的监听器方法
         mTitleField = (EditText) v.findViewById(R.id.crime_title);
+        //mSolvedCheckBox.setChecked(mCrime.isSolved());
+        mTitleField.setText(mCrime.getTitle());
 
         mTitleField.addTextChangedListener(new TextWatcher() {
             @Override
@@ -63,14 +69,15 @@ public class CrimeFragment extends Fragment {
 
         mDateButton = (Button) v.findViewById(R.id.crime_date);
 
-        //mDateButton.setText(mCrime.getDate().toString());
+        mDateButton.setText(mCrime.getDate().toString());
         //mDateButton.setText(DateFormat.getMediumDateFormat(getActivity()).format(mCrime.getDate()));
-        mDateButton.setText(DateFormat.format("EEEE,MMM dd, yyyy",mCrime.getDate()));
+        //mDateButton.setText(DateFormat.format("EEEE,MMM dd, yyyy",mCrime.getDate()));
         mDateButton.setEnabled(false);
 
 
         mSolvedCheckBox = (CheckBox) v.findViewById(R.id.crime_solved);
 
+        mSolvedCheckBox.setChecked(mCrime.isSolved());
         mSolvedCheckBox.setOnCheckedChangeListener(new OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
