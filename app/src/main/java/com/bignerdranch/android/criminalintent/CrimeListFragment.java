@@ -1,5 +1,6 @@
 package com.bignerdranch.android.criminalintent;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -25,6 +26,8 @@ public class CrimeListFragment extends Fragment {
     private CrimeAdapter mAdapter;
 
 
+
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
@@ -38,6 +41,13 @@ public class CrimeListFragment extends Fragment {
         updateUI();
         return view;
     }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        updateUI();
+    }
+
     private void updateUI() {
 
         //CrimeLab实例化
@@ -46,11 +56,18 @@ public class CrimeListFragment extends Fragment {
         //得到crimes
         List<Crime> crimes = crimeLab.getCrimes();
 
-        //得到CrimeAdapter实例
-        mAdapter = new CrimeAdapter(crimes);
+        if (mAdapter == null) {
+            //得到CrimeAdapter实例
+            mAdapter = new CrimeAdapter(crimes);
 
-        //设置适配器
-        mCrimeRecyclerView.setAdapter(mAdapter);
+            //设置适配器
+            mCrimeRecyclerView.setAdapter(mAdapter);
+        }else {
+
+            //刷新
+            mAdapter.notifyDataSetChanged();
+        }
+
     }
 
     //引用显示内容的控件,添加监听器
