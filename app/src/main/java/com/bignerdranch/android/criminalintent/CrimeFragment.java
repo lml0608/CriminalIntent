@@ -68,7 +68,19 @@ public class CrimeFragment extends Fragment {
     private ImageView mPhotoView;
     private ImageButton mPhotoButton;
 
+    private Callbacks mCallbacks;
+
     //
+    public interface Callbacks {
+        void onCrimeUpdated(Crime crime);
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        mCallbacks = (Callbacks)activity;
+    }
+
 
     public static CrimeFragment newIntance(UUID crimeId) {
 
@@ -103,6 +115,13 @@ public class CrimeFragment extends Fragment {
     }
 
     @Override
+    public void onDetach() {
+        super.onDetach();
+
+        mCallbacks = null;
+    }
+
+    @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode != Activity.RESULT_OK) {
             return;
@@ -111,6 +130,8 @@ public class CrimeFragment extends Fragment {
         if (requestCode == REQUEST_DATE) {
             Date date = (Date)data.getSerializableExtra(DatePickerFragment.EXTRA_DATE);
             mCrime.setDate(date);
+
+            updateCrime();
             updateDate();
         }else if (requestCode == REQUEST_CONTACT && data != null) {
             //获取返回的联系人
@@ -134,6 +155,7 @@ public class CrimeFragment extends Fragment {
                 c.moveToFirst();
                 String suspect = c.getString(0);
                 mCrime.setSuspect(suspect);
+                updateCrime();
                 mSuspectButton.setText(suspect);
             }finally {
                 c.close();
@@ -141,8 +163,15 @@ public class CrimeFragment extends Fragment {
 
         }else if (requestCode == REQUEST_PHOTO) {
 
+            updateCrime();
             updatePhotoView();
         }
+    }
+
+    private void updateCrime(){
+
+        CrimeLab.get(getActivity()).updateCrime(mCrime);
+        mCallbacks.onCrimeUpdated(mCrime);
     }
 
     private void updateDate() {
@@ -208,6 +237,8 @@ public class CrimeFragment extends Fragment {
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
                 mCrime.setTitle(charSequence.toString());
+
+                updateCrime();
             }
 
             @Override
@@ -245,6 +276,7 @@ public class CrimeFragment extends Fragment {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
                 mCrime.setSolved(isChecked);
+                updateCrime();
             }
         });
 
